@@ -1,8 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class GridGenerator : MonoBehaviour {
-
     public enum ShapeType { Circle, Square, Triangle, Diamond, Carrot }
 
     [Header("Grid Settings")]
@@ -10,56 +9,113 @@ public class GridGenerator : MonoBehaviour {
     [SerializeField] private ShapeType shapeType = ShapeType.Circle;
     [SerializeField] private int columns = 5;
     [SerializeField] private int rows = 5;
-    [SerializeField] private float sizeScale = 0.9f;  // relative to grid half-width
-    [SerializeField] private float outlineThickness = 0.6f; // in local units
+    [SerializeField] private float sizeScale = 0.9f;
+    [SerializeField] private float outlineThickness = 0.6f;
+
     private IGridShape _shape;
 
+    public RectTransform GridParent => gridParent;
+
+    // ── All grid points ───────────────────────────────────────────────
     public List<Vector2> GridPoints { get; private set; } = new();
 
-    void Start() {
-        _shape = CreateShape(shapeType);
-        GridPoints = GenerateGrid(columns, rows);
+    // ── Classified points ─────────────────────────────────────────────
+    public List<Vector2> ShapeInterior { get; private set; } = new();
+    public List<Vector2> ShapeOutline { get; private set; } = new();
+    public List<Vector2> ShapeExterior { get; private set; } = new();
+
+    [Header("Grid Point Interaction")]
+    [SerializeField] private bool spawnClickPoints = true;
+    [SerializeField] private float pointClickSize = 20f; // size of hitbox in UI units
+
+    // Fast lookup: local position → GridPoint
+    public Dictionary<Vector2, GridPoint> PointMap { get; private set; } = new();
+
+    void Awake() {
+        GenerateAndClassify();
     }
 
-    public List<Vector2> GenerateGrid(int cols, int rows) {
-        List<Vector2> points = new();
+    [ContextMenu("Refresh Grid Points")]
+    public void Refresh() {
+        GenerateAndClassify();
+    }
 
-        if (gridParent == null) {
-            Debug.LogWarning("[GridGenerator] gridParent is not assigned!");
-            return points;
-        }
+    // ── Core ──────────────────────────────────────────────────────────
 
-        // Get the actual world size of the Rect
-        float rectWidth = gridParent.rect.width;
-        float rectHeight = gridParent.rect.height;
+    private void GenerateAndClassify() {
+        if (gridParent == null) { Debug.LogWarning("[GridGenerator] gridParent not assigned!"); return; }
 
-        // Spacing based on rect size divided by number of cells
-        // cols-1 / rows-1 so points sit ON the edges too
-        float xStep = cols > 1 ? rectWidth / (cols - 1) : 0f;
-        float yStep = rows > 1 ? rectHeight / (rows - 1) : 0f;
+        // Clear old point GameObjects
+        foreach (var kv in PointMap)
+            if (kv.Value != null) Destroy(kv.Value.gameObject);
+        PointMap.Clear();
 
-        // Start from bottom-left corner of the Rect in local space
-        float startX = -rectWidth / 2f;
-        float startY = -rectHeight / 2f;
+        _shape = CreateShape(shapeType);
+
+        float W = gridParent.rect.width;
+        float H = gridParent.rect.height;
+        float xStep = columns > 1 ? W / (columns - 1) : 0f;
+        float yStep = rows > 1 ? H / (rows - 1) : 0f;
+        float startX = -W / 2f;
+        float startY = -H / 2f;
+        float size = Mathf.Min(W, H) / 2f * sizeScale;
+        float thick = Mathf.Min(xStep, yStep) * outlineThickness;
+        Vector2 center = Vector2.zero;
+
+        GridPoints.Clear();
+        ShapeInterior.Clear();
+        ShapeOutline.Clear();
+        ShapeExterior.Clear();
 
         for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < cols; x++) {
-                float px = startX + x * xStep;
-                float py = startY + y * yStep;
-                points.Add(new Vector2(px, py));
+            for (int x = 0; x < columns; x++) {
+                Vector2 point = new Vector2(startX + x * xStep, startY + y * yStep);
+                GridPoints.Add(point);
+
+                if (_shape.IsPointOnOutline(point, center, size, thick))
+                    ShapeOutline.Add(point);
+                else if (_shape.IsPointInside(point, center, size))
+                    ShapeInterior.Add(point);
+                else
+                    ShapeExterior.Add(point);
+
+                // ── Spawn clickable UI point ──────────────────────────
+                if (spawnClickPoints)
+                    SpawnGridPoint(point);
             }
         }
 
-        Debug.Log($"[GridGenerator] {points.Count} points inside Rect ({rectWidth}x{rectHeight})");
-        return points;
+        gridParent.sizeDelta = Vector2.zero;
+
+        Debug.Log($"[GridGenerator] Total: {GridPoints.Count} | " +
+                  $"Interior: {ShapeInterior.Count} | " +
+                  $"Outline: {ShapeOutline.Count} | " +
+                  $"Exterior: {ShapeExterior.Count}");
     }
 
-    // Recalculate if screen/rect changes at runtime
-    [ContextMenu("Refresh Grid Points")]
-    public void Refresh() {
-        _shape = CreateShape(shapeType);
-        GridPoints = GenerateGrid(columns, rows);
+    private void SpawnGridPoint(Vector2 localPos) {
+        GameObject go = new GameObject($"GP_{localPos.x:F0}_{localPos.y:F0}");
+        go.transform.SetParent(gridParent, false);
+
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = localPos;
+        rt.sizeDelta = new Vector2(pointClickSize, pointClickSize);
+
+        GridPoint gp = go.AddComponent<GridPoint>();
+        gp.LocalPosition = localPos;
+
+        // Round hitbox using AspectRatioFitter
+        var fitter = go.AddComponent<UnityEngine.UI.AspectRatioFitter>();
+        fitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.HeightControlsWidth;
+        fitter.aspectRatio = 1f;
+
+        PointMap[localPos] = gp;
     }
+
+    // ── Shape Factory ─────────────────────────────────────────────────
 
     private static IGridShape CreateShape(ShapeType type) => type switch {
         ShapeType.Circle => new CircleShape(),
@@ -83,7 +139,7 @@ public class GridGenerator : MonoBehaviour {
         float startX = -W / 2f;
         float startY = -H / 2f;
         float cellSize = Mathf.Min(xStep, yStep);
-        float dotSize = cellSize * 0.35f;
+        float dotSize = cellSize * 0.2f;
 
         Vector2 center = Vector2.zero;
         float radius = Mathf.Min(W, H) / 2f * sizeScale;
@@ -111,10 +167,10 @@ public class GridGenerator : MonoBehaviour {
 
         // Smooth wire outline
         Gizmos.color = Color.yellow;
-        var outline = _shape.GetOutlinePoints(center, radius);
-        for (int i = 0; i < outline.Count; i++) {
-            Vector3 a = gridParent.TransformPoint(outline[i]);
-            Vector3 b = gridParent.TransformPoint(outline[(i + 1) % outline.Count]);
+        var wire = _shape.GetOutlinePoints(center, radius);
+        for (int i = 0; i < wire.Count; i++) {
+            Vector3 a = gridParent.TransformPoint(wire[i]);
+            Vector3 b = gridParent.TransformPoint(wire[(i + 1) % wire.Count]);
             Gizmos.DrawLine(a, b);
         }
 
