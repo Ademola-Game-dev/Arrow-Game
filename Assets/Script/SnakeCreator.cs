@@ -140,7 +140,6 @@ public class SnakeCreator : MonoBehaviour {
         }
     }
 
-
     // ── Helpers ───────────────────────────────────────────────────────
 
     private float EstimateGridStep() {
@@ -199,7 +198,7 @@ public class SnakeCreator : MonoBehaviour {
         new(-step,    0),   // left
         new(    0,  step),  // up
         new(    0, -step),  // down
-        // ── diagonals removed ──
+        
     };
 
         for (int i = dirs.Length - 1; i > 0; i--) {
@@ -212,10 +211,7 @@ public class SnakeCreator : MonoBehaviour {
 
     private static readonly Color[] Palette =
     {
-        new(0.0f, 1.0f, 0.4f), new(1.0f, 0.4f, 0.1f),
-        new(0.2f, 0.7f, 1.0f), new(1.0f, 0.9f, 0.1f),
-        new(0.9f, 0.2f, 0.6f), new(0.6f, 0.3f, 1.0f),
-        new(1.0f, 0.2f, 0.2f), new(0.0f, 0.9f, 0.9f),
+        Color.red,Color.blue, Color.green, Color.violet, Color.brown,Color.orange,Color.yellow
     };
 
     private Color RandomColor() => Palette[Random.Range(0, Palette.Length)];

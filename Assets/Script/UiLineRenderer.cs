@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,13 +18,22 @@ public class UILineRenderer : Graphic{
 
 
     [Header("Click")]
-    [SerializeField] public Color highlightColor = Color.yellow;
-
-    // Callback — SnakeCreator listens to this
-    public System.Action<UILineRenderer> OnSnakeClicked;
-
+    [SerializeField] public Color highlightColor = Color.white;
+    [SerializeField] public float highlightDuration = 0.3f; // seconds to fade back
     private Color _originalColor;
 
+    private Coroutine _highlightCoroutine;
+    private GridPoint _headGridPoint;
+
+    [Header("Debug")]
+    private Vector2 _debugHeadPos;
+    private Vector2 _debugDir;
+
+    //[Header("Movement")]
+    //[SerializeField] public float moveSpeed = 400f; // pixels per second
+    //[SerializeField] public float moveDistance = 500f; // how far to move off screen
+
+    private List<GridPoint> towarsGridPoints;
 
     protected override void Awake() {
         base.Awake();
@@ -33,6 +44,99 @@ public class UILineRenderer : Graphic{
         raycastTarget = true; // ← enables click detection on the mesh
         _originalColor = color;
     }
+
+    public void MoveSnakeOffScreen() {
+        Debug.Log($"[UILineRenderer] Moving snake off screen: {name}");
+
+        towarsGridPoints = new List<GridPoint>();
+
+        towarsGridPoints = GetTowardsGridPoints();
+
+        foreach (var gp in towarsGridPoints) {
+            Debug.Log( $"Point {gp.LocalPosition} Occupied:{gp.IsOccupied()}");
+            gp.Blink();
+
+        }
+    }
+
+    private void SetHeadGridPoint() {
+        float bestDist = float.MaxValue;
+
+        Vector2 headPos = Points[0];
+
+        foreach (var kv in GridGenerator.Instance.PointMap) {
+            float d = Vector2.Distance(headPos, kv.Key);
+
+            if (d < bestDist) {
+                bestDist = d;
+                _headGridPoint = kv.Value;
+            }
+        }
+    }
+
+    private Vector2 GetGridDirection() {
+        Vector2 dir = (Points[0] - Points[1]).normalized;
+
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+            return new Vector2(Mathf.Sign(dir.x), 0);
+        else
+            return new Vector2(0, Mathf.Sign(dir.y));
+    }
+
+    private List<GridPoint> GetTowardsGridPoints() {
+        List<GridPoint> result = new();
+
+        SetHeadGridPoint();
+
+        if (_headGridPoint == null)
+            return result;
+
+        Vector2 dir = GetGridDirection();
+
+        Vector2 headPos = _headGridPoint.LocalPosition;
+
+        foreach (var kvp in GridGenerator.Instance.PointMap) {
+            Vector2 pos = kvp.Key;
+
+            // Right
+            if (dir == Vector2.right &&
+                Mathf.Approximately(pos.y, headPos.y) &&
+                pos.x > headPos.x) {
+                result.Add(kvp.Value);
+            }
+
+            // Left
+            else if (dir == Vector2.left &&
+                     Mathf.Approximately(pos.y, headPos.y) &&
+                     pos.x < headPos.x) {
+                result.Add(kvp.Value);
+            }
+
+            // Up
+            else if (dir == Vector2.up &&
+                     Mathf.Approximately(pos.x, headPos.x) &&
+                     pos.y > headPos.y) {
+                result.Add(kvp.Value);
+            }
+
+            // Down
+            else if (dir == Vector2.down &&
+                     Mathf.Approximately(pos.x, headPos.x) &&
+                     pos.y < headPos.y) {
+                result.Add(kvp.Value);
+            }
+        }
+
+        result.Sort((a, b) =>
+        {
+            float da = Vector2.Distance(a.LocalPosition, headPos);
+            float db = Vector2.Distance(b.LocalPosition, headPos);
+            return da.CompareTo(db);
+        });
+
+        return result;
+    }
+
 
     protected override void OnPopulateMesh(VertexHelper vh) {
         vh.Clear();
@@ -70,11 +174,11 @@ public class UILineRenderer : Graphic{
         Vector2 right = new Vector2(-forward.y, forward.x);
 
         // ── Head circle ───────────────────────────────────────────────
-        DrawCircle(vh, headPos, headRadius, headColor);
+        DrawCircle(vh, headPos, headRadius, color);
 
         // ── Snout bump ────────────────────────────────────────────────
         Vector2 snoutPos = headPos + forward * (headRadius * 0.5f);
-        DrawCircle(vh, snoutPos, headRadius * 0.55f, headColor);
+        DrawCircle(vh, snoutPos, headRadius * 0.55f, color);
 
         // ── Eyes ──────────────────────────────────────────────────────
         float eyeRadius = headRadius * 0.28f;
@@ -180,7 +284,7 @@ public class UILineRenderer : Graphic{
     // ── Public API ────────────────────────────────────────────────────
 
     public void SetPoints(List<Vector2> pts) {
-        Points = pts;
+        Points = new List<Vector2>(pts);
         SetVerticesDirty();
     }
 
@@ -190,4 +294,44 @@ public class UILineRenderer : Graphic{
         SetVerticesDirty();
     }
 
+    public void StartHighlight() {
+        if (_highlightCoroutine != null)
+            StopCoroutine(_highlightCoroutine);
+
+        _highlightCoroutine = StartCoroutine(HighlightFade());
+    }
+
+    // ── Highlight Coroutine ─────────────────────────────────────────
+
+    private IEnumerator HighlightFade() {
+        color = highlightColor;
+        SetVerticesDirty();
+
+        float elapsed = 0f;
+        while (elapsed < highlightDuration) {
+            elapsed += Time.deltaTime;
+            float t = elapsed / highlightDuration;
+            color = Color.Lerp(highlightColor, _originalColor, t);
+            SetVerticesDirty();
+            yield return null;
+        }
+
+        color = _originalColor;
+        SetVerticesDirty();
+    }
+
+
+    private void OnDrawGizmos() {
+        if (_headGridPoint == null)
+            return;
+
+        Gizmos.color = Color.red;
+
+        Vector3 start = transform.TransformPoint(_debugHeadPos);
+        Vector3 end = transform.TransformPoint(_debugHeadPos + _debugDir * 200f);
+
+        Gizmos.DrawLine(start, end);
+
+        Gizmos.DrawSphere(start, 5f);
+    }
 }

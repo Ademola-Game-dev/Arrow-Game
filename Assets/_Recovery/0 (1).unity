@@ -570,10 +570,10 @@ MonoBehaviour:
   shapeType: 0
   columns: 35
   rows: 50
-  sizeScale: 0.6
+  sizeScale: 0.9
   outlineThickness: 0.6
   spawnClickPoints: 1
-  pointClickSize: 25
+  pointClickSize: 20
 --- !u!1 &1749652738
 GameObject:
   m_ObjectHideFlags: 0
@@ -770,7 +770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SnakeCreator
   gridGenerator: {fileID: 1631895651}
   snakeContainer: {fileID: 1749652739}
-  snakeCount: 10
+  snakeCount: 80
   minLength: 3
   maxLength: 20
   lineWidth: 20

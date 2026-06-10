@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 
 public class GridGenerator : MonoBehaviour {
+
+    public static GridGenerator Instance { get; private set; }
     public enum ShapeType { Circle, Square, Triangle, Diamond, Carrot }
 
     [Header("Grid Settings")]
@@ -32,6 +34,7 @@ public class GridGenerator : MonoBehaviour {
     public Dictionary<Vector2, GridPoint> PointMap { get; private set; } = new();
 
     void Awake() {
+        Instance = this;
         GenerateAndClassify();
     }
 
