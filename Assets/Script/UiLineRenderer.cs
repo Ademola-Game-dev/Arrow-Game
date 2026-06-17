@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UILineRenderer : Graphic{
+
+    public bool IsDoingMove { get; private set; } = false;
+
     [SerializeField] public List<Vector2> Points = new();
     [SerializeField] public float lineWidth = 5f;
     [SerializeField][Range(3, 12)] public int joinSegments = 10;
@@ -91,6 +94,8 @@ public class UILineRenderer : Graphic{
         if (path.Count == 0)
             yield break;
 
+        IsDoingMove = true;
+
         Vector2 dir = (Points[0] - Points[1]).normalized;
 
         Vector2 startHeadPos = Points[0];
@@ -134,6 +139,8 @@ public class UILineRenderer : Graphic{
 
         Points = new List<Vector2>(originalPoints);
         SetVerticesDirty();
+
+        IsDoingMove = false;
     }
 
     private IEnumerator MoveOffScreenCoroutine() {

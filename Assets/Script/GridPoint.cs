@@ -51,8 +51,14 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
             Debug.Log($"[GridPoint] Clicked occupied point → Snake: {OccupiedSnake.name} " +
                       $"index: {SnakePointIndex} color: {OccupiedSnake.color}");
             // Forward click to the snake
-            OccupiedSnake.StartHighlight();
-            OccupiedSnake.MoveSnakeOffScreen();
+            if(!OccupiedSnake.IsDoingMove) {
+                OccupiedSnake.StartHighlight();
+                OccupiedSnake.MoveSnakeOffScreen();
+            }
+            else {
+                Debug.Log($"[GridPoint] Snake {OccupiedSnake.name} is already moving, click ignored.");
+            }
+            
         }
         else {
             Debug.Log($"[GridPoint] Clicked free point at {LocalPosition}");

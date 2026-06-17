@@ -770,7 +770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SnakeCreator
   gridGenerator: {fileID: 1631895651}
   snakeContainer: {fileID: 1749652739}
-  snakeCount: 10
+  snakeCount: 20
   minLength: 3
   maxLength: 20
   lineWidth: 20
