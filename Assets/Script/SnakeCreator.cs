@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class SnakeCreator : MonoBehaviour {
 
+    public static SnakeCreator Instance { get; private set; }
+
     [Header("Level Data")]
     [SerializeField] private SnakeLevelData snakeLevelData;
 
@@ -21,7 +23,19 @@ public class SnakeCreator : MonoBehaviour {
     private HashSet<Vector2> _occupied = new();
     private List<UILineRenderer> _snakes = new();
 
+    private void Awake() {
+        Instance = this;
+    }
+
     void Start() {
+        if(LevelEditManager.Instance != null) {
+            if(LevelEditManager.Instance.IsInEditMode) {
+                Debug.Log("[SnakeCreator] Level Editor Mode: Skipping snake generation.");
+                return;
+            };
+        }
+           
+
         if (snakeLevelData != null)
             LoadLevel();
         else
@@ -128,8 +142,14 @@ public class SnakeCreator : MonoBehaviour {
 
     private void SpawnSnake(List<Vector2> path, Color color) {
 
-        if (path == null || path.Count < 2) return;
-        if (Vector2.Distance(path[0], path[1]) < 0.001f) return;
+        if (path == null || path.Count < 2) {
+            Debug.LogWarning("[SnakeCreator] path too short for snake spawn.");
+            return;
+        } 
+        if (Vector2.Distance(path[0], path[1]) < 0.001f) {
+            Debug.LogWarning("[SnakeCreator] path points too close for snake spawn.");
+            return;
+        }
 
         GameObject go = new GameObject("Snake");
         go.transform.SetParent(snakeContainer, false);
@@ -159,16 +179,16 @@ public class SnakeCreator : MonoBehaviour {
         _snakes.Add(line);
 
         // ── Register snake on each GridPoint ──────────────────────────
-        List<GridPoint> owned = new();
+        List<GridPoint> occupiedGp = new();
 
         for (int i = 0; i < path.Count; i++) {
             if (gridGenerator.PointMap.TryGetValue(path[i], out GridPoint gp)) {
                 gp.SetOccupied(line, i);
-                owned.Add(gp);
+                occupiedGp.Add(gp);
             }
         }
 
-        line.SetOccupiedGridPoints(owned);
+        line.SetOccupiedGridPoints(occupiedGp);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
@@ -229,4 +249,33 @@ public class SnakeCreator : MonoBehaviour {
     };
 
     private Color RandomColor() => Palette[Random.Range(0, Palette.Length)];
+
+    public void CreateSnakeFromEditor(List<GridPoint> points) {
+        List<Vector2> path = new();
+
+        foreach (var p in points)
+            path.Add(p.LocalPosition);
+
+        SpawnSnake(path, RandomColor());
+    }
+
+    [ContextMenu("Save Level")]
+    public void SaveLevel() {
+        snakeLevelData.snakes.Clear();
+
+        foreach (var snake in _snakes) {
+            SnakeData data = new();
+            data.color = snake.color;
+
+            foreach (GridPoint p in snake.OccupiedGridPoints)
+                data.cells.Add(p.GridCoordinate);
+
+            snakeLevelData.snakes.Add(data);
+        }
+
+#if UNITY_EDITOR
+        UnityEditor.EditorUtility.SetDirty(snakeLevelData);
+        UnityEditor.AssetDatabase.SaveAssets();
+#endif
+    }
 }

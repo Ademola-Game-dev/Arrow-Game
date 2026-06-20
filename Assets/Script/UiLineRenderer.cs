@@ -37,7 +37,7 @@ public class UILineRenderer : Graphic{
     private readonly float maxMoveDistance = 3000f; // how far to move off screen
 
     private List<GridPoint> towarsGridPoints;
-    private List<GridPoint> ownedGridPoints = new();
+    public List<GridPoint> OccupiedGridPoints = new();
 
     private List<Vector2> originalPoints;
     protected override void Awake() {
@@ -80,7 +80,7 @@ public class UILineRenderer : Graphic{
             StartCoroutine(MoveOffScreenCoroutine());
 
             // ── Un Register snake on each GridPoint ──────────────────────────
-            foreach (var gp in ownedGridPoints)
+            foreach (var gp in OccupiedGridPoints)
                 gp.ClearIfOwnedBy(this);
         }
         else {
@@ -394,7 +394,7 @@ public class UILineRenderer : Graphic{
     }
 
     public void SetOccupiedGridPoints(List<GridPoint> points) {
-        ownedGridPoints = points;
+        OccupiedGridPoints = points;
     }
 
     public void SetColor(Color c) {

@@ -49,6 +49,13 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     // ── Pointer Events ────────────────────────────────────────────────
 
     public void OnPointerClick(PointerEventData eventData) {
+
+        if(LevelEditManager.Instance.IsInEditMode) {
+            Debug.Log($"[GridPoint] Clicked point at {LocalPosition} in edit mode.");
+            LevelEditManager.Instance.HandleGridPointClick(this);
+            return;
+        }
+
         if (OccupiedSnake != null) {
             Debug.Log($"[GridPoint] Clicked occupied point → Snake: {OccupiedSnake.name} " +
                       $"index: {SnakePointIndex} color: {OccupiedSnake.color}");
@@ -100,5 +107,13 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         yield return new WaitForSeconds(0.15f);
 
         _image.color = normalColor;
+    }
+
+    public void Highlight(Color yellow) {
+        _image.color = yellow;
+    }
+
+    public void ResetColor() {
+        _image.color = new Color(1f, 1f, 1f, 0.15f);
     }
 }

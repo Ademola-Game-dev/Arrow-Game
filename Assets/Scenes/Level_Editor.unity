@@ -359,6 +359,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &613433440
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 613433442}
+  - component: {fileID: 613433441}
+  m_Layer: 0
+  m_Name: Snake Creator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &613433441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 613433440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b5ff36d6eae94f47a96252bace7ffb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SnakeCreator
+  snakeLevelData: {fileID: 11400000, guid: cf62e66d0749b434f87aa72fe536965d, type: 2}
+  gridGenerator: {fileID: 1631895651}
+  snakeContainer: {fileID: 1749652739}
+  snakeCount: 20
+  minLength: 3
+  maxLength: 20
+  lineWidth: 20
+  maxTries: 100
+--- !u!4 &613433442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 613433440}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -724,7 +776,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1850543670}
   m_CullTransparentMesh: 1
---- !u!1 &2016248645
+--- !u!1 &1883931260
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -732,50 +784,43 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2016248646}
-  - component: {fileID: 2016248647}
+  - component: {fileID: 1883931262}
+  - component: {fileID: 1883931261}
   m_Layer: 0
-  m_Name: Snake Creator
+  m_Name: level Edit Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2016248646
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2016248645}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 187.19128, y: 434.4422, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2016248647
+--- !u!114 &1883931261
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2016248645}
+  m_GameObject: {fileID: 1883931260}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b5ff36d6eae94f47a96252bace7ffb1, type: 3}
+  m_Script: {fileID: 11500000, guid: f235ace5b532dce4192116f02b81d1b9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SnakeCreator
-  snakeLevelData: {fileID: 11400000, guid: e350978424130d74686c0c93e1ca56fb, type: 2}
-  gridGenerator: {fileID: 1631895651}
-  snakeContainer: {fileID: 1749652739}
-  snakeCount: 20
-  minLength: 3
-  maxLength: 20
-  lineWidth: 20
-  maxTries: 100
+  m_EditorClassIdentifier: Assembly-CSharp::LevelEditManager
+  IsInEditMode: 1
+--- !u!4 &1883931262
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883931260}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -785,4 +830,5 @@ SceneRoots:
   - {fileID: 1631895650}
   - {fileID: 347848165}
   - {fileID: 1100423748}
-  - {fileID: 2016248646}
+  - {fileID: 1883931262}
+  - {fileID: 613433442}
