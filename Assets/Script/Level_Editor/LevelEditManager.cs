@@ -8,6 +8,10 @@ public class LevelEditManager : MonoBehaviour {
 
     private List<GridPoint> currentSnakeGridPoints = new();
 
+    public event System.Action<bool> OnSnakeCreationStarted; // for UI to know when to show finish/cancel buttons, bool indicates if we have at least 2 points to create a snake
+    public event System.Action<UILineRenderer> OnSnakeSelected; // for UI to know when to show delete button
+
+    private UILineRenderer currentSelectedSnake = null;
     void Awake() {
         Instance = this;
     }
@@ -17,27 +21,63 @@ public class LevelEditManager : MonoBehaviour {
             return;
 
         // Don't allow using occupied cells
-        if (point.OccupiedSnake != null)
+        if (point.OccupiedSnake != null) {
+            currentSelectedSnake = point.OccupiedSnake;
+
+            currentSelectedSnake.StartHighlight();
+
+            OnSnakeSelected?.Invoke(currentSelectedSnake);
             return;
+        }
+           
 
         currentSnakeGridPoints.Add(point);
+
+        if (currentSnakeGridPoints.Count >= 2) {
+            // has Atleast 2 point, start creating the snake
+            OnSnakeCreationStarted?.Invoke(true);
+        }
+        else {
+            // Only 1 point, keep waiting for more points
+            OnSnakeCreationStarted?.Invoke(false);
+        }
     }
 
-    bool IsAdjacent(GridPoint a, GridPoint b) {
-        Vector2Int diff = b.GridCoordinate - a.GridCoordinate;
-
-        return Mathf.Abs(diff.x) + Mathf.Abs(diff.y) == 1;
-    }
-
-    [ContextMenu("Finish Snake")]
     public void FinishSnake() {
-    
+        currentSnakeGridPoints.Reverse();
+
         SnakeCreator.Instance.CreateSnakeFromEditor(currentSnakeGridPoints);
 
         currentSnakeGridPoints.Clear();
     }
 
-    [ContextMenu("Cancel Snake")]
+    public void SaveLevel() {
+        SnakeLevelData levelData = ScriptableObject.CreateInstance<SnakeLevelData>();
+
+        foreach (var snake in SnakeCreator.Instance.SpawnedSnakes) {
+            SnakeData snakeData = new SnakeData();
+
+            snakeData.color = snake.color;
+
+            foreach (var point in snake.OccupiedGridPoints) {
+                snakeData.cells.Add(point.GridCoordinate);
+            }
+
+            levelData.snakes.Add(snakeData);
+        }
+        // Save the ScriptableObject as an asset
+#if UNITY_EDITOR
+        string path = UnityEditor.EditorUtility.SaveFilePanelInProject("Save Level Data", "NewSnakeLevel", "asset", "New Snake Level Data");
+        if (!string.IsNullOrEmpty(path)) {
+            UnityEditor.AssetDatabase.CreateAsset(levelData, path);
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            Debug.Log($"Level data saved to {path}");
+        }
+#endif
+    }
+
+
     public void CancelSnake() {
         foreach (var p in currentSnakeGridPoints)
             p.ResetColor();

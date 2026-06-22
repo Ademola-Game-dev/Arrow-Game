@@ -4,8 +4,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UILineRenderer : Graphic{
+public enum SnakeColor {
+    Red,
+    Blue,
+    Green,
+    Yellow,
+    Purple,
+    Cyan,
+    Orange,
+    Magenta,
+    Brown,
+    Violet,
+}
 
+public class UILineRenderer : Graphic{
+ 
     public bool IsDoingMove { get; private set; } = false;
 
     [SerializeField] public List<Vector2> Points = new();
@@ -40,6 +53,7 @@ public class UILineRenderer : Graphic{
     public List<GridPoint> OccupiedGridPoints = new();
 
     private List<Vector2> originalPoints;
+    public SnakeColor SnakeColor;
     protected override void Awake() {
         base.Awake();
         // Graphic requires a CanvasRenderer — Unity adds it but just in case:
@@ -399,8 +413,66 @@ public class UILineRenderer : Graphic{
 
     public void SetColor(Color c) {
         color = c;
+        SnakeColor = GetSnakeColor(color);
         _originalColor = c;
         SetVerticesDirty();
+    }
+
+    public void SetColor(SnakeColor snakeColor) {
+        SnakeColor = snakeColor;
+
+        color = snakeColor switch {
+            SnakeColor.Red => Color.red,
+            SnakeColor.Green => Color.green,
+            SnakeColor.Blue => Color.blue,
+            SnakeColor.Yellow => Color.yellow,
+            SnakeColor.Cyan => Color.cyan,
+            SnakeColor.Magenta => Color.magenta,
+            SnakeColor.Orange => Color.orange,
+            SnakeColor.Purple => Color.purple,
+            SnakeColor.Brown => Color.brown,
+            SnakeColor.Violet => Color.violet,
+            _ => Color.white
+        };
+
+        _originalColor = color;
+        SetVerticesDirty();
+    }
+
+    private SnakeColor GetSnakeColor(Color c) {
+
+        if (c == Color.red)
+            return SnakeColor.Red;
+
+        if (c == Color.green)
+            return SnakeColor.Green;
+
+        if (c == Color.blue)
+            return SnakeColor.Blue;
+
+        if (c == Color.yellow)
+            return SnakeColor.Yellow;
+
+        if (c == Color.cyan)
+            return SnakeColor.Cyan;
+
+        if (c == Color.magenta)
+            return SnakeColor.Magenta;
+
+        if (c == Color.purple)
+            return SnakeColor.Purple;
+
+        if (c == Color.orange)
+            return SnakeColor.Orange;
+
+        if (c == Color.violet)
+            return SnakeColor.Violet;
+
+        if (c == Color.brown)
+            return SnakeColor.Brown;
+
+        Debug.LogWarning($"Unknown color selected: {c}");
+        return SnakeColor.Red; // fallback
     }
 
     public void StartHighlight() {

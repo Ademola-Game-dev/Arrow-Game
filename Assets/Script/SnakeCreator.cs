@@ -23,6 +23,8 @@ public class SnakeCreator : MonoBehaviour {
     private HashSet<Vector2> _occupied = new();
     private List<UILineRenderer> _snakes = new();
 
+    public IReadOnlyList<UILineRenderer> SpawnedSnakes => _snakes;
+
     private void Awake() {
         Instance = this;
     }
@@ -259,23 +261,4 @@ public class SnakeCreator : MonoBehaviour {
         SpawnSnake(path, RandomColor());
     }
 
-    [ContextMenu("Save Level")]
-    public void SaveLevel() {
-        snakeLevelData.snakes.Clear();
-
-        foreach (var snake in _snakes) {
-            SnakeData data = new();
-            data.color = snake.color;
-
-            foreach (GridPoint p in snake.OccupiedGridPoints)
-                data.cells.Add(p.GridCoordinate);
-
-            snakeLevelData.snakes.Add(data);
-        }
-
-#if UNITY_EDITOR
-        UnityEditor.EditorUtility.SetDirty(snakeLevelData);
-        UnityEditor.AssetDatabase.SaveAssets();
-#endif
-    }
 }
