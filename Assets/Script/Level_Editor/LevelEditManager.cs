@@ -9,8 +9,8 @@ public class LevelEditManager : MonoBehaviour {
 
     private List<GridPoint> currentSnakeGridPoints = new();
 
-    public event System.Action<bool> OnSnakeCreationStarted; // for UI to know when to show finish/cancel buttons, bool indicates if we have at least 2 points to create a snake
-    public event System.Action<UILineRenderer> OnSnakeSelected; // for UI to know when to show delete button
+    public event Action<bool> OnSnakeCreationStarted; // for UI to know when to show finish/cancel buttons, bool indicates if we have at least 2 points to create a snake
+    public event Action<UILineRenderer> OnSnakeSelected; // for UI to know when to show delete button
 
     private UILineRenderer currentSelectedSnake = null;
     void Awake() {
@@ -33,18 +33,26 @@ public class LevelEditManager : MonoBehaviour {
         else {
             currentSelectedSnake = null;
         }
-
-
-           
-
+       
         currentSnakeGridPoints.Add(point);
 
         if (currentSnakeGridPoints.Count >= 2) {
-            // has Atleast 2 point, start creating the snake
+            GridPoint previous = currentSnakeGridPoints[^2];
+            GridPoint current = currentSnakeGridPoints[^1];
+
+            List<GridPoint> between = GridGenerator.Instance.GetPointsBetween(previous, current);
+
+            // Remove the current point so we can insert the full path.
+            currentSnakeGridPoints.RemoveAt(currentSnakeGridPoints.Count - 1);
+
+            foreach (GridPoint p in between) {
+                if (currentSnakeGridPoints.Count == 0 || currentSnakeGridPoints[^1] != p)
+                    currentSnakeGridPoints.Add(p);
+            }
+
             OnSnakeCreationStarted?.Invoke(true);
         }
         else {
-            // Only 1 point, keep waiting for more points
             OnSnakeCreationStarted?.Invoke(false);
         }
     }

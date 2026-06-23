@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class GridGenerator : MonoBehaviour {
 
@@ -131,6 +132,40 @@ public class GridGenerator : MonoBehaviour {
         ShapeType.Carrot => new CarrotShape(),
         _ => new CircleShape(),
     };
+
+    public List<GridPoint> GetPointsBetween(GridPoint point1, GridPoint point2) {
+        List<GridPoint> result = new();
+
+        Vector2Int start = point1.GridCoordinate;
+        Vector2Int end = point2.GridCoordinate;
+
+        int dx = end.x - start.x;
+        int dy = end.y - start.y;
+
+        int steps = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy));
+
+        if (steps == 0) {
+            result.Add(point1);
+            return result;
+        }
+
+        for (int i = 0; i <= steps; i++) {
+            float t = i / (float)steps;
+
+            int x = Mathf.RoundToInt(Mathf.Lerp(start.x, end.x, t));
+            int y = Mathf.RoundToInt(Mathf.Lerp(start.y, end.y, t));
+
+            Vector2Int coord = new(x, y);
+
+            if (CellMap.TryGetValue(coord, out GridPoint gp)) {
+                // Prevent duplicates caused by rounding
+                if (result.Count == 0 || result[^1] != gp)
+                    result.Add(gp);
+            }
+        }
+
+        return result;
+    }
 
 #if UNITY_EDITOR
     private void OnDrawGizmos() {
