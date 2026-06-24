@@ -6,6 +6,7 @@ public class LevelEditManager : MonoBehaviour {
     public static LevelEditManager Instance { get; private set; }
 
     public bool IsInEditMode = true;
+    public bool CanOverlapSnake = false;
 
     private List<GridPoint> currentSnakeGridPoints = new();
 
@@ -58,11 +59,30 @@ public class LevelEditManager : MonoBehaviour {
     }
 
     public void FinishSnake() {
+        if (IsSnakeCollidingWithSnake(currentSnakeGridPoints) && !CanOverlapSnake) {
+
+            currentSnakeGridPoints.Reverse();
+            SnakeCreator.Instance.CreatePreviewSnakeFromEditor(currentSnakeGridPoints);
+            currentSnakeGridPoints.Clear();
+
+            Debug.LogWarning("Cannot create snake on top of another snake!");
+            return;
+        }
+            
         currentSnakeGridPoints.Reverse();
-
         SnakeCreator.Instance.CreateSnakeFromEditor(currentSnakeGridPoints);
-
         currentSnakeGridPoints.Clear();
+    }
+
+
+    private bool IsSnakeCollidingWithSnake(List<GridPoint> currentSnakeGridPoints) {
+        for (int i = 0; i < currentSnakeGridPoints.Count; i++) {
+            if (currentSnakeGridPoints[i].OccupiedSnake != null) {
+                Debug.LogWarning("Cannot create snake on top of another snake!");
+                return true;
+            }
+        }
+        return false;
     }
 
     public void SaveLevel() {

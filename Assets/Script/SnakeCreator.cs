@@ -142,15 +142,15 @@ public class SnakeCreator : MonoBehaviour {
 
     // ── Spawn ─────────────────────────────────────────────────────────
 
-    private void SpawnSnake(List<Vector2> path, Color color) {
+    private UILineRenderer SpawnSnake(List<Vector2> path, Color color, bool isPreview = false) {
 
         if (path == null || path.Count < 2) {
             Debug.LogWarning("[SnakeCreator] path too short for snake spawn.");
-            return;
+            return null;
         } 
         if (Vector2.Distance(path[0], path[1]) < 0.001f) {
             Debug.LogWarning("[SnakeCreator] path points too close for snake spawn.");
-            return;
+            return null;
         }
 
         GameObject go = new GameObject("Snake");
@@ -178,19 +178,28 @@ public class SnakeCreator : MonoBehaviour {
 
         line.SetPoints(converted);
         line.SetColor(color);
-        _snakes.Add(line);
 
-        // ── Register snake on each GridPoint ──────────────────────────
-        List<GridPoint> occupiedGp = new();
+        if(!isPreview) {
+            _snakes.Add(line);
 
-        for (int i = 0; i < path.Count; i++) {
-            if (gridGenerator.PointMap.TryGetValue(path[i], out GridPoint gp)) {
-                gp.SetOccupied(line, i);
-                occupiedGp.Add(gp);
+            // ── Register snake on each GridPoint ──────────────────────────
+            List<GridPoint> occupiedGp = new();
+
+            for (int i = 0; i < path.Count; i++) {
+                if (gridGenerator.PointMap.TryGetValue(path[i], out GridPoint gp)) {
+                    gp.SetOccupied(line, i);
+                    occupiedGp.Add(gp);
+                }
             }
-        }
 
-        line.SetOccupiedGridPoints(occupiedGp);
+            line.SetOccupiedGridPoints(occupiedGp);
+        }
+        else {
+            Destroy(line.gameObject,2f);
+            
+        }
+        return line;
+
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
@@ -252,14 +261,25 @@ public class SnakeCreator : MonoBehaviour {
 
     private Color RandomColor() => Palette[Random.Range(0, Palette.Length)];
 
-    public void CreateSnakeFromEditor(List<GridPoint> points, Color? snakeColor = null) {
+    public UILineRenderer CreateSnakeFromEditor(List<GridPoint> points, Color? snakeColor = null) {
         List<Vector2> path = new();
         foreach (var p in points) path.Add(p.LocalPosition);
-        SpawnSnake(path, snakeColor ?? RandomColor());
+        return SpawnSnake(path, snakeColor ?? RandomColor());
     }
 
     public void DeleteSnakeFromEditor(UILineRenderer currentSelectedSnake) {
         _snakes.Remove(currentSelectedSnake);
         Destroy(currentSelectedSnake.gameObject);
+    }
+
+    public void CreatePreviewSnakeFromEditor(List<GridPoint> points) {
+        List<Vector2> path = new();
+
+        foreach (var p in points)
+            path.Add(p.LocalPosition);
+
+        Color preview = new Color(1f, 0f, 0f, 0.5f);
+
+        SpawnSnake(path, preview, true);
     }
 }
