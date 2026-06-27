@@ -159,7 +159,6 @@ public class UILineRenderer : Graphic{
 
     private IEnumerator MoveOffScreenCoroutine() {
         Vector2 dir = (Points[0] - Points[1]).normalized;
-
         Vector2 startPos = Points[0];
 
         while (true) {
@@ -174,13 +173,12 @@ public class UILineRenderer : Graphic{
 
             Points[0] += moveSpeed * Time.deltaTime * dir;
 
-            for (int i = 1; i < Points.Count; i++) {
+            for (int i = 1; i < Points.Count; i++)
                 Points[i] = oldPositions[i - 1];
-            }
 
             SetVerticesDirty();
 
-            yield return new WaitForSeconds(0.05f);
+            yield return null; 
         }
     }
 
