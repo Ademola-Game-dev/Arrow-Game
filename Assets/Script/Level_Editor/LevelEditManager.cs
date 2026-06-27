@@ -13,9 +13,9 @@ public class LevelEditManager : MonoBehaviour {
     private List<GridPoint> currentSnakeGridPoints = new();
 
     public event Action<bool> OnSnakeCreationStarted; // for UI to know when to show finish/cancel buttons, bool indicates if we have at least 2 points to create a snake
-    public event Action<UILineRenderer> OnSnakeSelected; // for UI to know when to show delete button
+    public event Action<SnakeRenderer> OnSnakeSelected; // for UI to know when to show delete button
 
-    private UILineRenderer currentSelectedSnake = null;
+    private SnakeRenderer currentSelectedSnake = null;
     void Awake() {
         Instance = this;
     }

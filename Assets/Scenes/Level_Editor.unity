@@ -1462,14 +1462,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b5ff36d6eae94f47a96252bace7ffb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnakeCreator
-  snakeLevelData: {fileID: 11400000, guid: 84fd6a5d797c24b4fa99da517bf216f2, type: 2}
+  snakeLevelData: {fileID: 11400000, guid: 9b71b7283ebe03543b2c67e4c40fcba8, type: 2}
   gridGenerator: {fileID: 1631895651}
   snakeContainer: {fileID: 1749652739}
-  snakeCount: 20
-  minLength: 3
-  maxLength: 20
-  lineWidth: 20
-  maxTries: 100
+  snakeBodyWidth: 20
 --- !u!4 &613433442
 Transform:
   m_ObjectHideFlags: 0
@@ -3578,11 +3574,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridGenerator
   gridParent: {fileID: 1749652739}
-  shapeType: 0
   columns: 35
   rows: 50
-  sizeScale: 0.6
-  outlineThickness: 0.6
   spawnClickPoints: 1
   pointClickSize: 25
 --- !u!1 &1636969873

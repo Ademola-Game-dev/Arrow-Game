@@ -17,7 +17,7 @@ public enum SnakeColor {
     Violet,
 }
 
-public class UILineRenderer : Graphic{
+public class SnakeRenderer : Graphic{
  
     public bool IsDoingMove { get; private set; } = false;
 

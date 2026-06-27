@@ -8,7 +8,7 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
 
     public Vector2Int GridCoordinate;
     public Vector2 LocalPosition;
-    public UILineRenderer OccupiedSnake;   // which snake owns this point
+    public SnakeRenderer OccupiedSnake;   // which snake owns this point
     public int SnakePointIndex;   // index in that snake's path
 
     private Image _image;
@@ -19,7 +19,7 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         _image.raycastTarget = true;
     }
 
-    public void SetOccupied(UILineRenderer snake, int index) {
+    public void SetOccupied(SnakeRenderer snake, int index) {
         OccupiedSnake = snake;
         SnakePointIndex = index;
 
@@ -32,7 +32,7 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
 
     }
 
-    public void ClearIfOwnedBy(UILineRenderer snake) {
+    public void ClearIfOwnedBy(SnakeRenderer snake) {
         if (OccupiedSnake != snake) return;
 
         SetFree();
