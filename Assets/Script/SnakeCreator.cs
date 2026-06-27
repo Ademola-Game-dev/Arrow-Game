@@ -5,8 +5,6 @@ public class SnakeCreator : MonoBehaviour {
 
     public static SnakeCreator Instance { get; private set; }
 
-    [Header("Level Data")]
-    [SerializeField] private SnakeLevelData snakeLevelData;
 
     [Header("References")]
     [SerializeField] private GridGenerator gridGenerator;
@@ -24,24 +22,13 @@ public class SnakeCreator : MonoBehaviour {
         Instance = this;
     }
 
-    void Start() {
-        if(LevelEditManager.Instance != null) {
-            if(LevelEditManager.Instance.IsInEditMode) {
-                Debug.Log("[SnakeCreator] Level Editor Mode: Skipping snake generation.");
-                return;
-            };
-        }
-           
-
-        if (snakeLevelData != null)
-            LoadLevel();
-    }
-
-    private void LoadLevel() {
-        if (snakeLevelData == null)
+    public void LoadLevel(SnakeLevelData levelData) {
+        if (levelData == null) {
+            Debug.LogWarning("[SnakeCreator] LoadLevel called with null levelData.");
             return;
+        }
 
-        foreach (var snake in snakeLevelData.snakes) {
+        foreach (var snake in levelData.snakes) {
             List<Vector2> path = new();
 
             foreach (var cell in snake.cells) {
@@ -143,5 +130,19 @@ public class SnakeCreator : MonoBehaviour {
         Color preview = new Color(1f, 0f, 0f, 0.5f);
 
         SpawnSnake(path, preview, true);
+    }
+
+    public void RemoveSnakeFromList(SnakeRenderer snakeRenderer) {
+        if(!_snakes.Contains(snakeRenderer)) {
+            Debug.LogWarning("[SnakeCreator] Snake not found in list.");
+            return;
+        }
+        else {
+            _snakes.Remove(snakeRenderer);
+
+            
+            Debug.Log("[SnakeCreator] Snake removed from list.");
+        }
+        
     }
 }

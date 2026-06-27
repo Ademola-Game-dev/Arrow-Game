@@ -1462,7 +1462,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b5ff36d6eae94f47a96252bace7ffb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnakeCreator
-  snakeLevelData: {fileID: 11400000, guid: 9b71b7283ebe03543b2c67e4c40fcba8, type: 2}
   gridGenerator: {fileID: 1631895651}
   snakeContainer: {fileID: 1749652739}
   snakeBodyWidth: 20
@@ -3653,6 +3652,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1636969873}
   m_CullTransparentMesh: 1
+--- !u!1 &1730711967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1730711968}
+  - component: {fileID: 1730711969}
+  m_Layer: 0
+  m_Name: Game Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1730711968
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730711967}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1730711969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730711967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6b5c2b4305c8954f8c391af6f26ede9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  currentGameMode: 0
+  snakeLevelData: {fileID: 11400000, guid: 9b71b7283ebe03543b2c67e4c40fcba8, type: 2}
 --- !u!1 &1749652738
 GameObject:
   m_ObjectHideFlags: 0
@@ -4045,7 +4090,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f235ace5b532dce4192116f02b81d1b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelEditManager
-  IsInEditMode: 1
   CanOverlapSnake: 0
   CanGoDiagonal: 0
 --- !u!4 &1883931262
@@ -4333,3 +4377,4 @@ SceneRoots:
   - {fileID: 1100423748}
   - {fileID: 613433442}
   - {fileID: 1883931262}
+  - {fileID: 1730711968}

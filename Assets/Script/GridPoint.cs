@@ -50,7 +50,7 @@ public class GridPoint : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
 
     public void OnPointerClick(PointerEventData eventData) {
 
-        if(LevelEditManager.Instance.IsInEditMode) {
+        if(GameManager.Instance.CurrentGameMode == GameMode.LevelEditorMode) {
             Debug.Log($"[GridPoint] Clicked point at {LocalPosition} in edit mode.");
             LevelEditManager.Instance.HandleGridPointClick(this);
             return;

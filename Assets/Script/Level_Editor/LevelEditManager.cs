@@ -5,24 +5,22 @@ using UnityEngine;
 public class LevelEditManager : MonoBehaviour {
     public static LevelEditManager Instance { get; private set; }
 
-    public bool IsInEditMode = true;
-
-    public bool CanOverlapSnake = false;
-    public bool CanGoDiagonal = false;
-
-    private List<GridPoint> currentSnakeGridPoints = new();
-
     public event Action<bool> OnSnakeCreationStarted; // for UI to know when to show finish/cancel buttons, bool indicates if we have at least 2 points to create a snake
     public event Action<SnakeRenderer> OnSnakeSelected; // for UI to know when to show delete button
 
+    [HideInInspector] public bool CanOverlapSnake = false;
+    [HideInInspector] public bool CanGoDiagonal = false;
+
+    private List<GridPoint> currentSnakeGridPoints = new();
+
     private SnakeRenderer currentSelectedSnake = null;
+
     void Awake() {
         Instance = this;
     }
 
     public void HandleGridPointClick(GridPoint point) {
-        if (!IsInEditMode)
-            return;
+
 
         // Don't allow using occupied cells
         if (point.OccupiedSnake != null) {
@@ -168,4 +166,5 @@ public class LevelEditManager : MonoBehaviour {
 
         currentSelectedSnake = SnakeCreator.Instance.SpawnedSnakes[^1];
     }
+
 }

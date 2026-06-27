@@ -77,9 +77,9 @@ public class SnakeRenderer : Graphic{
 
         foreach (var gp in towarsGridPoints) {
             Debug.Log( $"Point {gp.LocalPosition} Occupied:{gp.IsOccupied() && gp.OccupiedSnake != this}");
-            gp.Blink();
-            
-            if(gp.IsOccupied() && gp.OccupiedSnake != this) {
+            //gp.Blink(); // Debugging
+
+            if (gp.IsOccupied() && gp.OccupiedSnake != this) {
                 canGoOutOffScreen = false;
                 break;
             }
@@ -165,6 +165,7 @@ public class SnakeRenderer : Graphic{
             float travelled = Vector2.Distance(startPos, Points[0]);
 
             if (travelled >= maxMoveDistance) {
+                SnakeCreator.Instance.RemoveSnakeFromList(this);
                 gameObject.SetActive(false);
                 yield break;
             }

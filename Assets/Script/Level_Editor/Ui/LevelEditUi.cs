@@ -10,8 +10,8 @@ public class LevelEditUi : MonoBehaviour {
     [SerializeField] private Image colorPreviewImage;
 
     private void Start() {
-        if (LevelEditManager.Instance != null) {
-           if(LevelEditManager.Instance.IsInEditMode) {
+        if (GameManager.Instance != null) {
+           if(GameManager.Instance.CurrentGameMode == GameMode.LevelEditorMode) {
                 levelEditPanel.SetActive(true);
 
                 finishSnakeBtn.onClick.AddListener(() =>

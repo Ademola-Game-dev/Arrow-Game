@@ -1,0 +1,46 @@
+using UnityEngine;
+
+public enum GameMode {
+    PlayMode,
+    LevelEditorMode
+}
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance { get; private set; }
+
+    [SerializeField] private GameMode currentGameMode = GameMode.PlayMode;
+
+    [Header("Level Data")]
+    [SerializeField] private SnakeLevelData snakeLevelData;
+
+    public GameMode CurrentGameMode => currentGameMode;
+
+    private void Awake() {
+        Instance = this;
+    }
+
+    private void Start() {
+        if (currentGameMode == GameMode.PlayMode) {
+            // Initialize the game in Play Mode
+            if (snakeLevelData != null) {
+                SnakeCreator.Instance.LoadLevel(snakeLevelData);
+            }
+            else {
+                Debug.LogError("SnakeLevelData is not assigned in the GameManager.");
+            }
+           
+        }
+        else if (currentGameMode == GameMode.LevelEditorMode) {
+            // Initialize the game in Level Editor Mode
+
+            if (snakeLevelData != null) {
+                SnakeCreator.Instance.LoadLevel(snakeLevelData);
+            }
+            else {
+                Debug.Log("Starting Level Editor Mode without a predefined level. You can create a new level.");
+            }
+        }
+    }
+
+}
