@@ -7000,7 +7000,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6b5c2b4305c8954f8c391af6f26ede9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  currentGameMode: 1
+  currentGameMode: 0
   snakeLevelData: {fileID: 11400000, guid: 84fd6a5d797c24b4fa99da517bf216f2, type: 2}
 --- !u!1 &1749652738
 GameObject:

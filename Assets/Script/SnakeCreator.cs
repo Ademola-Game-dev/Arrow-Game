@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public class SnakeCreator : MonoBehaviour {
 
     public static SnakeCreator Instance { get; private set; }
 
+    public event Action OnAllSnakesRemoved;
 
     [Header("References")]
     [SerializeField] private GridGenerator gridGenerator;
@@ -108,7 +110,7 @@ public class SnakeCreator : MonoBehaviour {
         Color.red,Color.blue, Color.green, Color.violet, Color.brown,Color.orange,Color.yellow
     };
 
-    private Color RandomColor() => Palette[Random.Range(0, Palette.Length)];
+    private Color RandomColor() => Palette[UnityEngine.Random.Range(0, Palette.Length)];
 
     public SnakeRenderer CreateSnakeFromEditor(List<GridPoint> points, Color? snakeColor = null) {
         List<Vector2> path = new();
@@ -140,10 +142,18 @@ public class SnakeCreator : MonoBehaviour {
         else {
             _snakes.Remove(snakeRenderer);
 
-            
-            Debug.Log("[SnakeCreator] Snake removed from list.");
+            if(CheckCompletionLevel()) {
+                Debug.Log("[SnakeCreator] All snakes removed.");
+                OnAllSnakesRemoved?.Invoke();
+            }
+
+            //Debug.Log("[SnakeCreator] Snake removed from list.");
         }
         
+    }
+
+    private bool CheckCompletionLevel() {
+        return _snakes.Count <= 0;
     }
 
     public void DeleteAllSnakes() {

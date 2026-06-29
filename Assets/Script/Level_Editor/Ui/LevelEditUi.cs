@@ -160,13 +160,16 @@ public class LevelEditUi : MonoBehaviour {
                     nudgeDownBtn.interactable = hasCustomLevel;
                 };
 
-
             }
            else {
                 levelEditPanel.SetActive(false);
                 levelEditPanel2.SetActive(false);
                 levelEditPanel3.SetActive(false);
-           }
+
+                SnakeCreator.Instance.OnAllSnakesRemoved += () => {
+                    Debug.Log("Show Win Panel");
+                };
+            }
 
            helpUiParent.SetActive(false);
         }
