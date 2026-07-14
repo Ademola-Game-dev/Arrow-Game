@@ -120,6 +120,13 @@ public class LevelEditUi : MonoBehaviour {
                     saveLevelBtn.interactable = true;
                 };
 
+                LevelEditManager.Instance.OnSnakeCreated += () => {
+                    nudgeLeftBtn.interactable = true;
+                    nudgeRightBtn.interactable = true;
+                    nudgeUpBtn.interactable = true;
+                    nudgeDownBtn.interactable = true;
+                };
+
                 LevelEditManager.Instance.OnHeadSwapPerformed += () => {
                     saveLevelBtn.interactable = true;
                 };
@@ -162,6 +169,8 @@ public class LevelEditUi : MonoBehaviour {
                     nudgeUpBtn.interactable = hasCustomLevel;
                     nudgeDownBtn.interactable = hasCustomLevel;
                 };
+
+
 
             }
            else {

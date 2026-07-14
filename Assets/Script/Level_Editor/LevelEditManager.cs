@@ -6,6 +6,7 @@ public class LevelEditManager : MonoBehaviour {
     public static LevelEditManager Instance { get; private set; }
 
     public event Action<bool> OnSnakeCreationStarted;
+    public event Action OnSnakeCreated;
     public event Action<SnakeRenderer> OnSnakeSelected; 
     public event Action OnNudgeLayoutPerformed; 
     public event Action OnHeadSwapPerformed; 
@@ -84,6 +85,7 @@ public class LevelEditManager : MonoBehaviour {
         currentSnakeGridPoints.Reverse();
         SnakeCreator.Instance.CreateSnakeFromEditor(currentSnakeGridPoints);
         currentSnakeGridPoints.Clear();
+        OnSnakeCreated?.Invoke();
     }
 
     private bool IsSnakeGoingDiagonal(List<GridPoint> currentSnakeGridPoints) {
