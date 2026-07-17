@@ -1,16 +1,13 @@
-using Game;
 using TMPro;
 using UnityEngine;
 
-public class CounterUi : MonoBehaviour
-{
-    [SerializeField] private TMP_Text counterText;
-    private GameManager gameManager;
-   
+/// <summary>
+/// Displays the running elapsed time (MM:SS) from <see cref="Timer"/> in a UI label,
+/// updating every frame.
+/// </summary>
+public class CounterUi : MonoBehaviour {
 
-    private void Start() {
-        gameManager = GameManager.Instance;
-    }
+    [SerializeField] private TMP_Text counterText;
 
     private void Update() {
         if (counterText != null) {
@@ -18,6 +15,7 @@ public class CounterUi : MonoBehaviour
         }
     }
 
+    /// <summary>Formats the timer's elapsed value as MM:SS and displays it.</summary>
     private void UpdateTotalTime() {
         float t = Timer.Instance.GetCounterValue();
         int mins = (int)(t / 60);
