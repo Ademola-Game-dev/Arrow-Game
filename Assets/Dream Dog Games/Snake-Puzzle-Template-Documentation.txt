@@ -1,0 +1,212 @@
+================================================================================
+ SNAKE PUZZLE GAME TEMPLATE — UNITY ASSET DOCUMENTATION
+================================================================================
+
+VERSION:      1.0
+ENGINE:       Unity (UI/uGUI based, TextMeshPro required)
+GENRE:        Grid-based snake puzzle
+INCLUDES:     Full gameplay loop + in-game Level Editor
+
+--------------------------------------------------------------------------------
+1. OVERVIEW
+--------------------------------------------------------------------------------
+
+This template is a complete, ready-to-extend foundation for a grid-based snake
+puzzle game, similar in spirit to "Tangle" / "Untangle the Snakes" style puzzle
+games. Players clear a board by removing snakes one at a time; snakes must have
+a clear path off the grid before they can be removed.
+
+The package ships with two fully working modes:
+
+  • PLAY MODE         — load a level, solve it, timer tracks completion time.
+  • LEVEL EDITOR MODE — draw snakes directly onto the grid, adjust them, and
+                         export them as reusable level data assets — no code
+                         required to create new levels.
+
+Both modes run on the same underlying grid, snake rendering, and snake data
+systems, so anything built in the editor drops directly into Play Mode with
+zero conversion steps.
+
+--------------------------------------------------------------------------------
+2. CORE SYSTEMS
+--------------------------------------------------------------------------------
+
+2.1  GRID SYSTEM (GridGenerator)
+---------------------------------
+  - Procedurally generates an evenly spaced grid of points inside any
+    RectTransform, fully configurable via Inspector (columns, rows, size).
+  - Every grid cell is represented by a GridPoint object, exposed through
+    two fast lookup dictionaries:
+        PointMap  : local position  -> GridPoint
+        CellMap   : grid coordinate -> GridPoint
+  - Optional clickable hitboxes per cell (used by the Level Editor) can be
+    toggled on/off — Play Mode games that don't need per-cell clicking can
+    disable this for a lighter grid.
+  - Includes a straight-line point interpolation utility (GetPointsBetween)
+    used to "fill in" a snake's path when the player drags across multiple
+    cells in one motion.
+  - One-click "Refresh Grid Points" context menu command for instant
+    iteration on grid size/spacing in the Editor.
+
+2.2  SNAKE RENDERING (SnakeRenderer)
+---------------------------------
+  - Fully custom UI Graphic — snakes are drawn as a single procedural mesh,
+    not sprite-based, meaning they scale cleanly to any resolution and can
+    be recolored at runtime with zero draw-call overhead per snake.
+  - Stylized snake head: rounded snout, blinking-style eyes with pupils,
+    and an animated forked tongue — all generated procedurally, no art
+    assets required.
+  - Smooth corner joins between body segments for a continuous, organic
+    line rather than sharp right angles.
+  - Built-in "clear" behavior: when a snake is removed, it automatically
+    checks whether the path ahead is open. If clear, it slides off-screen
+    and removes itself from the board. If blocked by another snake, it
+    slides forward until it hits the obstruction, then returns to its
+    original position — giving the player clear visual feedback that the
+    move isn't valid yet.
+  - Selection highlight system: any snake can be flagged and briefly
+    flashed to a highlight color that smoothly fades back to its original
+    color — used for editor selection feedback.
+  - 10 built-in named colors (Red, Blue, Green, Yellow, Purple, Cyan,
+    Orange, Magenta, Brown, Violet) with two-way conversion between the
+    named enum and the actual render color.
+
+2.3  SNAKE MANAGEMENT (SnakeCreator)
+---------------------------------
+  - Central spawn/despawn authority for every snake on the board.
+  - Loads a full level from a SnakeLevelData asset in a single call.
+  - Converts grid-local paths into properly parented, correctly scaled UI
+    snake objects automatically (handles all the local/world space
+    conversion internally).
+  - Registers each snake's occupied cells with the grid so other systems
+    (movement, collision, editor selection) always know what's occupied.
+  - Fires an OnAllSnakesRemoved event the moment the board is cleared —
+    this is the single hook the rest of the game (timer, win screen) reacts
+    to, keeping win-condition logic in one place.
+  - Supports temporary "preview" snakes (semi-transparent, auto-destroying)
+    used by the Level Editor to show invalid placements without committing
+    them.
+
+2.4  LEVEL DATA (SnakeLevelData / SnakeData)
+---------------------------------
+  - Levels are plain ScriptableObject assets — lightweight, diff-friendly,
+    and easy to bulk-manage in a level-select system or addressables setup.
+  - Each level stores a simple list of snakes, each with a color and an
+    ordered list of grid cell coordinates — human-readable and easy to
+    hand-author or generate procedurally if you want auto-generated levels
+    later.
+
+2.5  GAME FLOW (GameManager)
+---------------------------------
+  - Two variants included:
+      • Play-only GameManager  — minimal, loads one level and starts the
+        timer. Ideal starting point for a pure play-only build.
+      • Play + Editor GameManager — same play flow, plus a GameMode switch
+        (Play Mode / Level Editor Mode) so a single scene can serve both
+        purposes depending on an Inspector toggle.
+  - Singleton access pattern (Instance) used consistently across every
+    manager in the template, so systems can reference each other without
+    manual wiring or dependency injection.
+
+2.6  LEVEL EDITOR (LevelEditManager + LevelEditUi)
+---------------------------------
+  A complete, playtestable in-game level editor — build and test levels
+  without leaving Play mode or touching code:
+
+  - Click-to-draw snake creation: click a start cell, click an end cell,
+    and every cell in between is automatically filled in (straight lines
+    only by default).
+  - Validation rules, toggleable per-level:
+      • Prevent snakes from overlapping each other.
+      • Prevent diagonal snake segments.
+    Invalid attempts show a temporary red preview snake and a warning
+    instead of silently failing.
+  - Select, delete, and reverse ("swap head") any existing snake directly
+    on the board.
+  - Per-snake color picker with a live preview swatch, wired to a
+    TMP_Dropdown.
+  - "Nudge" tool — shift the entire level layout one cell at a time
+    (left/right/up/down) with automatic bounds checking; the whole board
+    moves as one atomic operation so a partially out-of-bounds nudge is
+    safely rejected before anything moves.
+  - One-click level export: builds a SnakeLevelData asset from whatever is
+    currently on the board and saves it directly into your project via the
+    Editor's native save dialog.
+  - Built-in help overlay panel that swaps in over the editor UI.
+  - Every interactive element (draw / cancel / save / delete / swap / nudge
+    / help / color dropdown / overlap & diagonal toggles) is fully event
+    driven and cleanly unsubscribes itself when the UI is closed, so the
+    editor can be opened and closed repeatedly without leaking listeners.
+
+2.7  TIMER (Timer)
+---------------------------------
+  - Minimal stopwatch-style elapsed-time tracker.
+  - Start / Stop / Read API, automatically driven by the win-condition
+    event so no manual wiring is needed per level.
+
+2.8  UI (WinUI, CounterUi)
+---------------------------------
+  - WinUI: shows a win panel with total completion time (MM:SS format)
+    the moment the board is cleared, plus a one-click scene restart button.
+  - CounterUi: live-updating MM:SS readout of the running timer during
+    play, for an on-screen countdown/stopwatch display.
+
+--------------------------------------------------------------------------------
+3. FEATURE SUMMARY
+--------------------------------------------------------------------------------
+
+  [x] Fully procedural grid generation — any size, any aspect ratio
+  [x] Procedurally rendered snakes — no sprite art required
+  [x] Animated snake head (eyes + forked tongue)
+  [x] Smooth clear / collide-and-return movement behavior
+  [x] Full in-game Level Editor — draw, edit, color, save levels
+  [x] Overlap & diagonal-movement rules, toggleable per level
+  [x] Level layout "nudge" tool with atomic bounds validation
+  [x] ScriptableObject-based level data — easy to batch, version, or
+      generate procedurally
+  [x] Built-in win detection, timer, and results UI
+  [x] Consistent singleton architecture across all systems — easy to read,
+      easy to extend
+  [x] Fully commented, XML-documented C# codebase
+
+--------------------------------------------------------------------------------
+4. ARCHITECTURE NOTES
+--------------------------------------------------------------------------------
+
+  - Every major system exposes a static Instance and communicates with
+    other systems primarily through C# events (Action / Action<T>), rather
+    than tight direct coupling — this keeps gameplay, UI, and editor logic
+    cleanly separated and easy to swap out individually.
+  - Grid <-> world <-> UI-local space conversions are fully handled inside
+    SnakeCreator and SnakeRenderer, so anything built on top of the grid
+    (new snake types, obstacles, power-ups, etc.) can work purely in
+    grid-local coordinates without worrying about UI transform math.
+  - The Level Editor and Play Mode share the exact same SnakeCreator /
+    GridGenerator / SnakeRenderer pipeline — there is no separate "editor
+    only" rendering path, which guarantees what you build in the editor is
+    pixel-identical to what plays in-game.
+
+--------------------------------------------------------------------------------
+5. REQUIREMENTS
+--------------------------------------------------------------------------------
+
+  - Unity 2021 LTS or newer (uGUI / RectTransform based)
+  - TextMeshPro (TMP) package
+  - No third-party dependencies
+
+--------------------------------------------------------------------------------
+6. SUGGESTED NEXT STEPS FOR BUYERS
+--------------------------------------------------------------------------------
+
+  - Swap in your own art direction: snake colors, background, grid styling,
+    and UI skin are all easily themeable without touching gameplay code.
+  - Add a level-select screen that lists your SnakeLevelData assets.
+  - Extend SnakeLevelData with metadata (difficulty, par time, level name)
+    for menus and leaderboards.
+  - Hook the Level Editor's Save flow into a runtime file-based save system
+    if you want players to be able to create and share their own levels
+    outside the Unity Editor.
+
+================================================================================
+ END OF DOCUMENT
+================================================================================
